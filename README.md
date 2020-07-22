@@ -6,4 +6,7 @@ This is a basic Azure Logic App to monitor NetApp Cloud Sync relationships and g
 
 ## Introduction
 
+## Deployment and Configuration
+### Deployment
 
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ffischerphilipp%2FCloudSyncMonitor%2Fmaster%2Ftemplate.json)
