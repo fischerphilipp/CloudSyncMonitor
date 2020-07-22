@@ -23,7 +23,7 @@
             "type": "Bool"
         },
         "Refresh Token": {
-            "defaultValue": "dFk9x1rGhVCPftr4Zoq99yrPcWkmlti11lyjAREzkk3Op",
+            "defaultValue": "",
             "type": "SecureString"
         },
         "Scheduled Frequency": {
