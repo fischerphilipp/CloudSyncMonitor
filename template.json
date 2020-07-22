@@ -1,0 +1,989 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Cloud Sync Monitoring Job Name": {
+            "defaultValue": "Cloud-Sync-Monitoring",
+            "type": "String"
+        },
+        "Office 365 Connection Name": {
+            "defaultValue": "Cloud-Sync-Monitoring-Office-365-Connection",
+            "type": "string"
+        },
+        "Mail Subject": {
+            "defaultValue": "Cloud Sync Logic App Monitoring",
+            "type": "String"
+        },
+        "Notification Mail Recipient": {
+            "defaultValue": "philipp.fischer@netapp.com",
+            "type": "String"
+        },
+        "Only Report Errors": {
+            "defaultValue": true,
+            "type": "Bool"
+        },
+        "Refresh Token": {
+            "defaultValue": "dFk9x1rGhVCPftr4Zoq99yrPcWkmlti11lyjAREzkk3Op",
+            "type": "SecureString"
+        },
+        "Scheduled Frequency": {
+            "defaultValue": "Hour",
+            "type": "String",
+            "allowedValues": [
+                "Week",
+                "Day",
+                "Hour",
+                "Minute"
+            ]
+        },
+        "Scheduled Interval": {
+            "defaultValue": 2,
+            "type": "Int"
+        },  
+        "Scheduled Start Time": {
+            "defaultValue": "2020-07-19T00:00:00Z",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+         {
+         "type": "MICROSOFT.WEB/CONNECTIONS",
+         "apiVersion": "2016-06-01",
+         // Template parameter reference for connection name
+         "name": "[parameters('Office 365 Connection Name')]",
+         // Template parameter reference for connection resource location. Must match logic app location.
+         "location": "[resourceGroup().location]",
+         "properties": {
+            "api": {
+               // Connector ID
+               "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', 'office365')]"
+            },
+            // Template parameter reference for connection display name
+            "displayName": "[parameters('Office 365 Connection Name')]"
+          }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('Cloud Sync Monitoring Job Name')]",
+            "location": "[resourceGroup().location]",
+            "tags": {},
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('Office 365 Connection Name'))]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "[parameters('Scheduled Frequency')]",
+                                "interval": "[parameters('Scheduled Interval')]",
+                                "startTime": "[parameters('Scheduled Start Time')]",
+                                "timeZone": "GMT Standard Time"
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "For_each": {
+                            "foreach": "@body('Parse_JSON_-_Extract_Cloud_Central_Account_ID')",
+                            "actions": {
+                                "For_each_Sync_Relationship": {
+                                    "foreach": "@body('Parse_JSON__-_Extract_Sync_Relationships')",
+                                    "actions": {
+                                        "Check_-_Only_Report_Errors": {
+                                            "actions": {
+                                                "Find_failed_Relationships": {
+                                                    "actions": {
+                                                        "Send_an_email_(V2)_-_Only_failed": {
+                                                            "runAfter": {},
+                                                            "type": "ApiConnection",
+                                                            "inputs": {
+                                                                "body": {
+                                                                    "Body": "<p>The following Cloud Sync Relationships finished with status: @{items('For_each_Sync_Relationship')?['activity']?['status']} <br>\n<br>\nSource<br>\nProtocol: @{items('For_each_Sync_Relationship')?['source']?['protocol']}<br>\nHost: @{items('For_each_Sync_Relationship')?['source']?['cifs']?['host']}<br>\nShare:@{items('For_each_Sync_Relationship')?['source']?['cifs']?['share']}/@{items('For_each_Sync_Relationship')?['source']?['cifs']?['path']}<br>\n<br>\nTarget<br>\nProtocol: @{items('For_each_Sync_Relationship')?['target']?['protocol']}<br>\nHost: @{items('For_each_Sync_Relationship')?['target']?['cifs']?['host']}<br>\nShare: @{items('For_each_Sync_Relationship')?['target']?['cifs']?['share']}/@{items('For_each_Sync_Relationship')?['target']?['cifs']?['path']}<br>\n<br>\n<br>\nDatabroker Name: @{items('For_each_Sync_Relationship')?['dataBroker']?['name']}<br>\n<br>\nRelationship ID: @{items('For_each_Sync_Relationship')['relationshipId']}</p>",
+                                                                    "Subject": "@{variables('Mail Subject')} - Status @{items('For_each_Sync_Relationship')?['activity']?['status']} ",
+                                                                    "To": "@variables('Notification Mail Recipient')"
+                                                                },
+                                                                "host": {
+                                                                    "connection": {
+                                                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                                                    }
+                                                                },
+                                                                "method": "post",
+                                                                "path": "/v2/Mail"
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {},
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "equals": [
+                                                                    "@items('For_each_Sync_Relationship')?['activity']?['status']",
+                                                                    "FAILED"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                }
+                                            },
+                                            "runAfter": {},
+                                            "else": {
+                                                "actions": {
+                                                    "Send_an_email_(V2)_-_Failed_and_successful": {
+                                                        "runAfter": {},
+                                                        "type": "ApiConnection",
+                                                        "inputs": {
+                                                            "body": {
+                                                                "Body": "<p>The following Cloud Sync Relationships finished with status: @{items('For_each_Sync_Relationship')?['activity']?['status']} <br>\n<br>\nSource<br>\nProtocol: @{items('For_each_Sync_Relationship')?['source']?['protocol']}<br>\nHost: @{items('For_each_Sync_Relationship')?['source']?['cifs']?['host']}<br>\nShare:@{items('For_each_Sync_Relationship')?['source']?['cifs']?['share']}/@{items('For_each_Sync_Relationship')?['source']?['cifs']?['path']}<br>\n<br>\nTarget<br>\nProtocol: @{items('For_each_Sync_Relationship')?['target']?['protocol']}<br>\nHost: @{items('For_each_Sync_Relationship')?['target']?['cifs']?['host']}<br>\nShare: @{items('For_each_Sync_Relationship')?['target']?['cifs']?['share']}/@{items('For_each_Sync_Relationship')?['target']?['cifs']?['path']}<br>\n<br>\n<br>\nDatabroker Name: @{items('For_each_Sync_Relationship')?['dataBroker']?['name']}<br>\n<br>\nRelationship ID: @{items('For_each_Sync_Relationship')['relationshipId']}</p>",
+                                                                "Subject": "@{variables('Mail Subject')} -  Status @{items('For_each_Sync_Relationship')?['activity']?['status']} ",
+                                                                "To": "@variables('Notification Mail Recipient')"
+                                                            },
+                                                            "host": {
+                                                                "connection": {
+                                                                    "name": "@parameters('$connections')['office365']['connectionId']"
+                                                                }
+                                                            },
+                                                            "method": "post",
+                                                            "path": "/v2/Mail"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "equals": [
+                                                            "@variables('Only Report Errors')",
+                                                            true
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If"
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Parse_JSON__-_Extract_Sync_Relationships": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach"
+                                },
+                                "HTTP__-_Get_Sync_Relationships": {
+                                    "runAfter": {
+                                        "Set_variable_-_Account_ID": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "headers": {
+                                            "Authorization": "Bearer @{variables('Access Token')}",
+                                            "Content-Type": "application/json",
+                                            "x-account-id": "@items('For_each')['accountId']"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://cloudsync.netapp.com/api/relationships-v2"
+                                    }
+                                },
+                                "Parse_JSON__-_Extract_Sync_Relationships": {
+                                    "runAfter": {
+                                        "HTTP__-_Get_Sync_Relationships": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ParseJson",
+                                    "inputs": {
+                                        "content": "@body('HTTP__-_Get_Sync_Relationships')",
+                                        "schema": {
+                                            "items": {
+                                                "properties": {
+                                                    "activity": {
+                                                        "properties": {
+                                                            "bytesCopied": {
+                                                                "type": "integer"
+                                                            },
+                                                            "bytesFailed": {
+                                                                "type": "integer"
+                                                            },
+                                                            "bytesMarkedForCopy": {
+                                                                "type": "integer"
+                                                            },
+                                                            "bytesMarkedForRemove": {
+                                                                "type": "integer"
+                                                            },
+                                                            "bytesRemoved": {
+                                                                "type": "integer"
+                                                            },
+                                                            "bytesRemovedFailed": {
+                                                                "type": "integer"
+                                                            },
+                                                            "bytesScanned": {
+                                                                "type": "integer"
+                                                            },
+                                                            "dirsCopied": {
+                                                                "type": "integer"
+                                                            },
+                                                            "dirsFailed": {
+                                                                "type": "integer"
+                                                            },
+                                                            "dirsFailedToScan": {
+                                                                "type": "integer"
+                                                            },
+                                                            "dirsMarkedForCopy": {
+                                                                "type": "integer"
+                                                            },
+                                                            "dirsMarkedForRemove": {
+                                                                "type": "integer"
+                                                            },
+                                                            "dirsRemoved": {
+                                                                "type": "integer"
+                                                            },
+                                                            "dirsScanned": {
+                                                                "type": "integer"
+                                                            },
+                                                            "endTime": {
+                                                                "type": "string"
+                                                            },
+                                                            "executionTime": {
+                                                                "type": "integer"
+                                                            },
+                                                            "failureMessage": {
+                                                                "type": "string"
+                                                            },
+                                                            "filesCopied": {
+                                                                "type": "integer"
+                                                            },
+                                                            "filesFailed": {
+                                                                "type": "integer"
+                                                            },
+                                                            "filesMarkedForCopy": {
+                                                                "type": "integer"
+                                                            },
+                                                            "filesMarkedForIgnore": {
+                                                                "type": "integer"
+                                                            },
+                                                            "filesMarkedforRemove": {
+                                                                "type": "integer"
+                                                            },
+                                                            "filesRemoved": {
+                                                                "type": "integer"
+                                                            },
+                                                            "filesRemovedFailed": {
+                                                                "type": "integer"
+                                                            },
+                                                            "filesScanned": {
+                                                                "type": "integer"
+                                                            },
+                                                            "lastMessageTime": {
+                                                                "type": "string"
+                                                            },
+                                                            "progress": {
+                                                                "type": "integer"
+                                                            },
+                                                            "startTime": {
+                                                                "type": "string"
+                                                            },
+                                                            "status": {
+                                                                "type": "string"
+                                                            },
+                                                            "topFiveMostCommonRelationshipErrors": {
+                                                                "type": "array"
+                                                            },
+                                                            "type": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "createdAt": {
+                                                        "type": "integer"
+                                                    },
+                                                    "dataBroker": {
+                                                        "properties": {
+                                                            "createdAt": {
+                                                                "type": "integer"
+                                                            },
+                                                            "externalId": {
+                                                                "type": "string"
+                                                            },
+                                                            "fileLink": {
+                                                                "type": "string"
+                                                            },
+                                                            "groupId": {
+                                                                "type": "string"
+                                                            },
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "lastPing": {
+                                                                "properties": {
+                                                                    "wasabi": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "placement": {
+                                                                "properties": {
+                                                                    "cpus": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "hostname": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "instanceId": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "node": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "os": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "osTotalMem": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "platform": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "privateIp": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "processMaxMem": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "publicIp": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "region": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "release": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "resourceGroupName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "subnetCidrBlock": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "version": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "status": {
+                                                                "type": "string"
+                                                            },
+                                                            "transferRate": {
+                                                                "type": "number"
+                                                            },
+                                                            "type": {
+                                                                "type": "string"
+                                                            },
+                                                            "updateNewVersion": {
+                                                                "type": "boolean"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "endTime": {
+                                                        "type": "string"
+                                                    },
+                                                    "group": {
+                                                        "properties": {
+                                                            "createdAt": {
+                                                                "type": "string"
+                                                            },
+                                                            "dataBrokers": {
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "createdAt": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "externalId": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "fileLink": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "groupId": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "id": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "lastPing": {
+                                                                            "properties": {
+                                                                                "wasabi": {
+                                                                                    "type": "integer"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "name": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "placement": {
+                                                                            "properties": {
+                                                                                "cpus": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "hostname": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "instanceId": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "node": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "os": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "osTotalMem": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "platform": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "privateIp": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "processMaxMem": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "publicIp": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "region": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "release": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "resourceGroupName": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "subnetCidrBlock": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "version": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "status": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "transferRate": {
+                                                                            "type": "number"
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "updateNewVersion": {
+                                                                            "type": "boolean"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "lastPing",
+                                                                        "type",
+                                                                        "name",
+                                                                        "externalId",
+                                                                        "groupId",
+                                                                        "createdAt",
+                                                                        "transferRate",
+                                                                        "updateNewVersion",
+                                                                        "id",
+                                                                        "placement",
+                                                                        "status",
+                                                                        "fileLink"
+                                                                    ],
+                                                                    "type": "object"
+                                                                },
+                                                                "type": "array"
+                                                            },
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "isCm": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "isCvo": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "isQstack": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "phase": {
+                                                        "type": "string"
+                                                    },
+                                                    "relationshipId": {
+                                                        "type": "string"
+                                                    },
+                                                    "settings": {
+                                                        "properties": {
+                                                            "copyAcl": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "deleteOnSource": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "deleteOnTarget": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "fileTypes": {
+                                                                "properties": {
+                                                                    "directories": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "files": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "symlinks": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "files": {
+                                                                "properties": {
+                                                                    "excludeExtensions": {
+                                                                        "type": "array"
+                                                                    },
+                                                                    "maxDate": {},
+                                                                    "maxSize": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "minDate": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "minSize": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "gracePeriod": {
+                                                                "type": "integer"
+                                                            },
+                                                            "objectTagging": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "retries": {
+                                                                "type": "integer"
+                                                            },
+                                                            "schedule": {
+                                                                "properties": {
+                                                                    "isEnabled": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "nextTime": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "syncInDays": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "syncInHours": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "syncInMinutes": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "syncWhenCreated": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "source": {
+                                                        "properties": {
+                                                            "cifs": {
+                                                                "properties": {
+                                                                    "host": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "path": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "provider": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "share": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "version": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "protocol": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "startTime": {
+                                                        "type": "string"
+                                                    },
+                                                    "target": {
+                                                        "properties": {
+                                                            "cifs": {
+                                                                "properties": {
+                                                                    "host": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "path": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "provider": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "share": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "version": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "protocol": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "isQstack",
+                                                    "isCvo",
+                                                    "isCm",
+                                                    "phase",
+                                                    "source",
+                                                    "target",
+                                                    "settings",
+                                                    "dataBroker",
+                                                    "group",
+                                                    "startTime",
+                                                    "createdAt",
+                                                    "endTime",
+                                                    "id",
+                                                    "relationshipId",
+                                                    "activity"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    }
+                                },
+                                "Set_variable_-_Account_ID": {
+                                    "runAfter": {},
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "Account ID",
+                                        "value": "@items('For_each')['accountId']"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Parse_JSON_-_Extract_Cloud_Central_Account_ID": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "HTTP_-_Get_User_Access_Token": {
+                            "runAfter": {
+                                "Initialize_variable_-_Sync_Relationships_[DO_NOT_MODIFY]": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "body": {
+                                    "client_id": "Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC",
+                                    "grant_type": "refresh_token",
+                                    "refresh_token": "@{variables('RefreshToken')}"
+                                },
+                                "headers": {
+                                    "Content-Type": "application/json"
+                                },
+                                "method": "POST",
+                                "uri": "https://netapp-cloud-account.auth0.com/oauth/token"
+                            }
+                        },
+                        "HTTP_-_Obtain_Cloud_Central_Account_ID": {
+                            "runAfter": {
+                                "Set_variable_-_Access_Token": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "headers": {
+                                    "Authorization": "Bearer @{variables('Access Token')}",
+                                    "Content-Type": "application/json"
+                                },
+                                "method": "GET",
+                                "uri": "https://cloudsync.netapp.com/api/accounts"
+                            }
+                        },
+                        "Initialize_variable_-_Access_Token_[DO_NOT_MODIFY]": {
+                            "runAfter": {
+                                "Initialize_variable_-_Scheduled_Interval": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Access Token",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_Account_ID_[DO_NOT_MODIFY]": {
+                            "runAfter": {
+                                "Initialize_variable_-_Access_Token_[DO_NOT_MODIFY]": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Account ID",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_Data_Broker(s)_[DO_NOT_MODIFY]": {
+                            "runAfter": {
+                                "Initialize_variable_-_Account_ID_[DO_NOT_MODIFY]": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Data Broker",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                         "Initialize_variable_-_Mail_Subject": {
+                            "runAfter": {
+                                "Initialize_variable_-_Only_Report_Errors": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Mail Subject",
+                                        "type": "string",
+                                        "value": "[parameters('Mail Subject')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_Notification_Mail_Recipient": {
+                            "runAfter": {
+                                "Initialize_variable_-_Mail_Subject": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Notification Mail Recipient",
+                                        "type": "string",
+                                        "value": "[parameters('Notification Mail Recipient')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_Only_Report_Errors": {
+                            "runAfter": {
+                                "Initialize_variable_-_Refresh_Token": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Only Report Errors",
+                                        "type": "boolean",
+                                        "value": "[parameters('Only Report Errors')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_Refresh_Token": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "RefreshToken",
+                                        "type": "string",
+                                        "value": "[parameters('Refresh Token')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_Sync_Relationships_[DO_NOT_MODIFY]": {
+                            "runAfter": {
+                                "Initialize_variable_-_Data_Broker(s)_[DO_NOT_MODIFY]": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Sync Relationship",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_JSON_-_Extract_Cloud_Central_Account_ID": {
+                            "runAfter": {
+                                "HTTP_-_Obtain_Cloud_Central_Account_ID": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('HTTP_-_Obtain_Cloud_Central_Account_ID')",
+                                "schema": {
+                                    "items": {
+                                        "properties": {
+                                            "accountId": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "accountId",
+                                            "name"
+                                        ],
+                                        "type": "object"
+                                    },
+                                    "type": "array"
+                                }
+                            }
+                        },
+                        "Parse_JSON_-_Extract_User_Access_Token": {
+                            "runAfter": {
+                                "HTTP_-_Get_User_Access_Token": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('HTTP_-_Get_User_Access_Token')",
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer"
+                                        },
+                                        "id_token": {
+                                            "type": "string"
+                                        },
+                                        "scope": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Set_variable_-_Access_Token": {
+                            "runAfter": {
+                                "Parse_JSON_-_Extract_User_Access_Token": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "Access Token",
+                                "value": "@body('Parse_JSON_-_Extract_User_Access_Token')?['access_token']"
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "office365": {
+                                // Template parameter references
+                                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', 'office365')]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('Office 365 Connection Name'))]",
+                                "connectionName": "[parameters('Office 365 Connection Name')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+    ]
+}
