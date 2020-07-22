@@ -50,16 +50,12 @@
          {
          "type": "MICROSOFT.WEB/CONNECTIONS",
          "apiVersion": "2016-06-01",
-         // Template parameter reference for connection name
          "name": "[parameters('Office 365 Connection Name')]",
-         // Template parameter reference for connection resource location. Must match logic app location.
          "location": "[resourceGroup().location]",
          "properties": {
             "api": {
-               // Connector ID
                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', 'office365')]"
             },
-            // Template parameter reference for connection display name
             "displayName": "[parameters('Office 365 Connection Name')]"
           }
         },
@@ -974,7 +970,6 @@
                     "$connections": {
                         "value": {
                             "office365": {
-                                // Template parameter references
                                 "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', 'office365')]",
                                 "connectionId": "[resourceId('Microsoft.Web/connections', parameters('Office 365 Connection Name'))]",
                                 "connectionName": "[parameters('Office 365 Connection Name')]"
