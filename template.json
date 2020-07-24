@@ -765,7 +765,7 @@
                         },
                         "Initialize_variable_-_Access_Token_[DO_NOT_MODIFY]": {
                             "runAfter": {
-                                "Initialize_variable_-_Scheduled_Interval": [
+                                "Initialize_variable_-_Notification_Mail_Recipient": [
                                     "Succeeded"
                                 ]
                             },
