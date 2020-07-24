@@ -6,7 +6,8 @@ This is a basic Azure Logic App to monitor NetApp Cloud Sync relationships and g
 
 ## Introduction
 This Cloud Sync monitor offers the following funcionality:
-- 
+- Sends notificatiion mails for failed (and successful syncs if desired) with one mail per sync relationship
+- This is a pull monitor, no events are pushed from Cloud Sync to it.
 
 #### The template deploys two components:
 - The Azure Logic App containing the monitoring logic
@@ -38,6 +39,27 @@ After launching the template you are presented with an Azure custom deployment s
 
 ![Deployment Configuration](Screenshots/DeploymentParameters.png)
 
+The following parameters need to be specified:
+- Basic Azure deployment information (Subscription, Resource Group, Location)
+- Cloud Sync Monitoring Name
+    - This is the name for the Azure Logic App resource.
+- Office 365 Connection Name
+    - This is the Azure resource name for the Office 365 Connection that is being used for sending the notification mail. This has to be configured separately after deployment. (See detailed steps below)
+- Mail Subject
+    - The subject each notification mail will have. It is appended by the job status, which either "Failed" or "Done".
+- Notification Mail Recipient
+    - The recipient for the notification mails. You can specify multiple addresses with a semicolon.
+- Only Report Errors (true/false)
+    - If set to true you will only be notified on failed sync relationships. If set this to false you will get a notification for every successful sync as well. You will always receive one mail per sync relationship.
+    - This parameter could be set to "false" for initial testing and afterwards changed to "true" (see instructions below).
+- Refresh Token
+    - This is the refresh token generated before
+- Scheduled Frequency
+    - When do you want the Monitor to check for sync relationship stattus updated i.e: Minute, Hour, Day, Month)
+- Scheduled Interval
+    - How often should the Monitor be run in your previously specified frequency (i.e. every 5 minutes, every 5 hours ...)
+- Scheduled Start Time
+    - Usually there is no need to change this parameter unless you want the Montior to start running at some point in the future
 
 
 Hinweis auf: Wenn es aktuell keine Failed relationships gibt, dann zum Testen auf false stellen und anschließend ändern
