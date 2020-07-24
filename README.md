@@ -8,6 +8,10 @@ This is a basic Azure Logic App to monitor NetApp Cloud Sync relationships and g
 This Cloud Sync monitor offers the following funcionality:
 - 
 
+#### The template deploys two components:
+- The Azure Logic App containing the monitoring logic
+- An Office / Microsoft 365 API connection, which is used to connect to your mail account to send the notification mails
+
 ## Prerequisites
 ### Cloud Central Refresh Token
 The Azure Logic uses a refresh token provided through NetApp Cloud Central, which in turn is used to generate an access token for Accessing the API Services for Cloud Sync.
