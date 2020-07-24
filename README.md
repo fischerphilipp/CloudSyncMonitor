@@ -46,9 +46,9 @@ The following parameters need to be specified and you can either accept the defa
 - Office 365 Connection Name
     - This is the Azure resource name for the Office 365 Connection that is being used for sending the notification mail. This has to be configured separately after deployment. (See detailed steps below)
 - Mail Subject
-    - The subject each notification mail will have. It is appended by the job status, which either "Failed" or "Done".
+    - The chosen mail subject is always appended by the job status, which is either "Failed" or "Done".
 - Notification Mail Recipient
-    - The recipient for the notification mails. You can specify multiple addresses with a semicolon.
+    - You can specify multiple addresses with a semicolon.
 - Only Report Errors (true/false)
     - If set to true you will only be notified on failed sync relationships. If set this to false you will get a notification for every successful sync as well. You will always receive one mail per sync relationship.
     - This parameter could be set to "false" for initial testing and afterwards changed to "true" (see instructions below).
