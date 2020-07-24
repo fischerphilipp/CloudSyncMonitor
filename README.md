@@ -33,3 +33,7 @@ All you need to do is clicking the Deploy to Azure button below, which then take
 After launching the template you are presented with an Azure custom deployment screen that asks for some configuration details.
 
 ![Deployment Configuration](Screenshots/DeploymentParameters.png)
+
+
+
+Hinweis auf: Wenn es aktuell keine Failed relationships gibt, dann zum Testen auf false stellen und anschließend ändern

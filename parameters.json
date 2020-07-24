@@ -2,17 +2,17 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "Cloud Sync Monitoring Job Name": {
+    "Cloud Sync Monitoring Logic App Name": {
       "value": "Cloud-Sync-Monitoring"
     },
     "Office 365 Connection Name": {
       "value": "Cloud-Sync-Monitoring-Office-365-Connection"
     },
     "Mail Subject": {
-      "value": "Cloud Sync Logic App Monitoring"
+      "value": "Cloud Sync Monitoring"
     },
     "Notification Mail Recipient": {
-      "value": "philipp.fischer@netapp.com"
+      "value": ""
     },
     "Only Report Errors": {
       "value": true
