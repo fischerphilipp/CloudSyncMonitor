@@ -2,16 +2,16 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "Cloud Sync Monitoring Name": {
-            "defaultValue": "Cloud-Sync-Monitoring",
+        "Cloud Sync Monitor Name": {
+            "defaultValue": "Cloud-Sync-Monitor",
             "type": "String"
         },
         "Office 365 Connection Name": {
-            "defaultValue": "Cloud-Sync-Monitoring-Office-365-Connection",
+            "defaultValue": "Cloud-Sync-Monitor-Office-365-Connection",
             "type": "string"
         },
         "Mail Subject": {
-            "defaultValue": "Cloud Sync Monitoring",
+            "defaultValue": "Cloud Sync Monitor",
             "type": "String"
         },
         "Notification Mail Recipient": {
@@ -62,7 +62,7 @@
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('Cloud Sync Monitoring Name')]",
+            "name": "[parameters('Cloud Sync Monitor Name')]",
             "location": "[resourceGroup().location]",
             "tags": {},
             "dependsOn": [

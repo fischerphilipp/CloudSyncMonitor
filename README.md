@@ -15,7 +15,7 @@ This Cloud Sync monitor offers the following funcionality:
 
 ## Prerequisites
 ### Cloud Central Refresh Token
-The Azure Logic uses a refresh token provided through NetApp Cloud Central, which in turn is used to generate an access token for Accessing the API Services for Cloud Sync.
+The Azure Logic uses a refresh token provided through NetApp Cloud Central, which in turn is used to generate an access token for accessing the API Services for Cloud Sync.
 To generate a refresh token follow the below steps:
 
 - Go to https://services.cloud.netapp.com/refresh-token, generate a refresh token and copy or save it somewhere. This will be needed during the Logic App Deployment
@@ -23,25 +23,25 @@ To generate a refresh token follow the below steps:
 - If necessary you can also revoke the token and create a new one via the aforementioned link.
 
 ### Microsoft (Office) 365 Account
-You will need an Office / Microsoft 365 Account that will be used to send the notification mails. Authentication to your account is securely handled with an Azure API connection to Office 365 that is created automatically during Logic App deployment. However, this is currently the only option to send notification mails.
-If you don't have an Office 365 account, feel free to contact me and I can evaluate implementing other mail providers as well.
+You will need an Office / Microsoft 365 Account that will be used to send the notification mails. Authentication to your account is securely handled by an Azure API connection to Office 365 that is created automatically during Logic App deployment. However, this is currently the only option to send notification mails.
+If you don't have an Office 365 account, feel free to reach out in order to evaluate other mail providers as well.
 
 
 ## Deployment & Configuration
 ### Deployment
 
-All you need to do is clicking the Deploy to Azure button below, which then takes you right to the Azure Portal where you can specify the necessary parameters
+All you need to do is to click the "Deploy to Azure" button below, which then takes you right to the Azure Portal to specify the necessary parameters for deployment (see below).
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ffischerphilipp%2FCloudSyncMonitor%2Fmaster%2Ftemplate.json)
 
 ### Configuration
-After launching the template you are presented with an Azure custom deployment screen that asks for some configuration details.
+After launching the template you are presented with an Azure custom deployment screen that asks for some configuration details:
 
 ![Deployment Configuration](Screenshots/DeploymentParameters.png)
 
-The following parameters need to be specified:
+The following parameters need to be specified and you can either accept the default values or modify them according to your needs:
 - Basic Azure deployment information (Subscription, Resource Group, Location)
-- Cloud Sync Monitoring Name
+- Cloud Sync Monitor Name
     - This is the name for the Azure Logic App resource.
 - Office 365 Connection Name
     - This is the Azure resource name for the Office 365 Connection that is being used for sending the notification mail. This has to be configured separately after deployment. (See detailed steps below)
