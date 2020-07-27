@@ -14,7 +14,7 @@ This Cloud Sync monitor offers the following funcionality:
 The notifications that are sent look like this:
 ![Example Mail](Screenshots/CloudSyncMonitor-ExampleMail.png)
 
-Deployment is really simple: Deploy the Logic App via the "Deploy to Azure" button below and specify the necessary parameters, one of which is the Cloud Central Refresh Token (see instructions for this in the "Prerequisites" section).
+Deployment is really simple: Deploy the Logic App via the "Deploy to Azure" button below and specify the necessary parameters, one of which is the Cloud Central Refresh Token (see instructions for this in the [Prerequisites](#Prerequisites) section).
 Although most likely not needed, you can find a detailed description of every parameter and the exact deployment steps below.
 
 #### The template deploys two components: 
@@ -89,6 +89,6 @@ This can be done easily by changing the corresponding variables through the Azur
 1. Select the Cloud Sync Monitor Azure Logic App in your resource group
 2. Open the Logic App Designer by clicking "Edit"
 ![Edit Cloud Sync Monitor Settings](Screenshots/Edit-Monitor-Settings.png)
-3. Change on of the following variables within the Logic App Designer
+3. Change one of the following variables within the Logic App Designer
 ![Change Logic App Variables](Screenshots/Monitor-Settings-Variables.png)
 4. Save and exit the Logic App Designer
