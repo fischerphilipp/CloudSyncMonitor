@@ -6,15 +6,18 @@ This is a basic Azure Logic App to monitor NetApp Cloud Sync relationships and g
 
 ## Introduction
 This Cloud Sync monitor offers the following funcionality:
-- Sends notification mails for failed (and optionally also successful) sync relationships.
+- Send notification mails for failed (and optionally also successful) sync relationships.
 - This is a pull monitor, no events are pushed from Cloud Sync to it.
 - The monitoring interval is freely configurable in minutes, hours, days or weeks. 
-- The Cloud Sync Monitor always sends one mail per successful or failed sync relationship for the configured interval setting.
+- Cloud Sync Monitor always sends one mail per successful or failed sync relationship for the configured interval setting.
 
 The notifications that are sent look like this:
 ![Example Mail](Screenshots/CloudSyncMonitor-ExampleMail.png)
 
-#### The template deploys two components:
+Deployment is really simple: Deploy the Logic App via the "Deploy to Azure" button below and specify the necessary parameters, one of which is the Cloud Central Refresh Token (see instructions for this in the "Prerequisites" section).
+Although most likely not needed, you can find a detailed description of every parameter and the exact deployment steps below.
+
+#### The template deploys two components: 
 - The Azure Logic App containing the monitoring logic
 - An Office / Microsoft 365 API connection, which is used to connect to your mail account to send the notification mails
 
@@ -66,15 +69,23 @@ The following parameters need to be specified and you can either accept the defa
     - Usually there is no need to change this parameter unless you want the Montior to start running at some point in the future
 
 ### Configuration
-After successfully deploying the Cloud Sync Monitor Logic App the API connection for Office 365 needs to be connected to an Office 365 account.
+After successfully deploying the Cloud Sync Monitor Logic App, the API connection for Office 365 needs to be connected to an Office 365 account.
 1. This has to be configured in the Office 365 API connection resource that was deployed to the specified ressource group during deployment:
 ![Office 365 API Connection Resource](Screenshots/Office365-API-Connection.png)
 2. Select "Edit API connection"
-3. Click "Authorize"
-4. Choose an Office 365 account to be used for sending the notification mails
+3. Choose an Office 365 account to be used for sending the notification mails
 ![Authorize](Screenshots/Authorize-Office365-Connection.png)
+4. Click "Authorize"
 
 ### Change Settings after Deployment
-It might be necessary to change some settings after the Cloud Sync Monitor Logic App has already been deployed. This might be the case for the initially specified mail recipient or the setting to only be notified on errors.
+It might be necessary to change some settings after the Cloud Sync Monitor Logic App has already been deployed. The following settings can be configured after deployment:
+- Recurrence setting (Interval / Frequency)
+Refresh token
+- The setting whether to only report errors or all successfull sync relationships as well
+- Mail subject
+- Notification mail recipient 
 
-This can be done easily through the Azure Logic App Designer
+This can be done easily through the Azure Logic App Designer:
+1. Select the Cloud Sync Monitor Azure Logic App in your resource group
+2. Open the Logic App Designer by clicking "Edit"
+![Edit Cloud Sync Monitor Settings](Screenshots/Edit-Monitor-Settings.png)
