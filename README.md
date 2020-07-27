@@ -27,7 +27,7 @@ The Azure Logic App uses a refresh token provided through NetApp Cloud Central, 
 To generate a refresh token follow these steps:
 
 1. Go to https://services.cloud.netapp.com/refresh-token
-2. Sign in with the same user-account and passwort used for accessing NetApp Cloud Sync.
+2. Sign in with the same user account and passwort used for accessing NetApp Cloud Sync.
 3. Generate a refresh token and copy or save it somewhere. This will be needed during the Logic App deployment
 
 Some remarks on the refresh token:
@@ -50,23 +50,22 @@ After launching the template you are presented with an Azure custom deployment s
 
 ![Deployment Configuration](Screenshots/DeploymentParameters.png)
 
-The following parameters need to be specified and you can either accept the default values or modify them according to your needs:
-- Basic Azure deployment information (Subscription, Resource Group, Location)
+The following Cloud Sync Monitor specific parameters need to be specified and you can either accept the default values or modify them according to your needs:
 - Cloud Sync Monitor Name
     - This is the name for the Azure Logic App resource.
 - Office 365 Connection Name
-    - This is the Azure resource name for the Office 365 Connection that is being used for sending the notification mails. This has to be configured separately after deployment (see detailed steps [below](#Configuration)).
+    - This is the Azure resource name for the Office 365 Connection that is being used for sending the notification mails. The connection has to be configured separately after deployment (see detailed steps [below](#Configuration)).
 - Mail Subject
     - The chosen mail subject is always appended by the job status, which is either "Failed" or "Done".
 - Notification Mail Recipient
     - You can specify multiple addresses by using the semicolon as delimiter.
 - Only Report Errors (true/false)
     - If set to *true* you will only be notified about failed sync relationships. If set to *false* you will get a notification for every successful sync as well. You will always receive one mail per sync relationship.
-    - This parameter could be set to *false* for initial testing and afterwards changed to *true* (see instructions [below](#Change-Settings-after-Deployment)).
+    - This parameter could be set to *false* for initial testing and afterwards be changed to *true* (see instructions [below](#Change-Settings-after-Deployment)).
 - Refresh Token
     - This is the refresh token generated in the [prerequisites section](#Cloud-Central-Refresh-Token)
 - Scheduled Frequency
-    - When do you want the Monitor to check for sync relationship status updates i.e: Minute, Hour, Day, Month)
+    - When do you want the Monitor to check for sync relationship status updates (i.e: Minute, Hour, Day, Month)
 - Scheduled Interval
     - How often should the Monitor be run in your previously specified frequency (i.e. every 5 minutes, every 5 hours ...)
 - Scheduled Start Time
@@ -74,14 +73,14 @@ The following parameters need to be specified and you can either accept the defa
 
 ### Configuration
 After successfully deploying the Cloud Sync Monitor Logic App, the API connection for Office 365 needs to be connected to an Office 365 account.
-1. This has to be configured in the Office 365 API connection resource that was deployed to the specified ressource group during deployment:
+1. This has to be configured within the Office 365 API connection resource that was deployed to the specified ressource group during deployment:
 ![Office 365 API Connection Resource](Screenshots/Office365-API-Connection.png)
-2. Select "Edit API connection"
-3. Choose an Office 365 account to be used for sending the notification mails
+2. Select "Edit API connection".
+3. Choose an Office 365 account to be used for sending the notification mails.
 ![Authorize](Screenshots/Authorize-Office365-Connection.png)
-4. Click "Authorize"
+4. Click "Authorize".
 
-### Change Settings after Deployment
+## Change Settings after Deployment
 It might be necessary to change some settings after the Cloud Sync Monitor Logic App has already been deployed. The following settings can be configured after deployment:
 - Recurrence setting (interval / frequency)
 - Refresh token
