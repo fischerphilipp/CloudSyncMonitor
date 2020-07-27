@@ -2,10 +2,10 @@
 
 Created by Philipp Fischer (Cloud Solutions Architect for Azure NetApp Files at NetApp)
 
-This is a basic Azure Logic App to monitor NetApp Cloud Sync relationships and get notified via mail either only on failures or on failures as well as successfull syncs.
+This is a basic Azure Logic App to monitor NetApp Cloud Sync relationships and get notified via mail either only on failures or on failures as well as successful syncs.
 
 ## Introduction
-This Cloud Sync Monitor offers the following funcionality:
+This Cloud Sync Monitor offers the following functionality:
 - Send notification mails for failed (and optionally also successful) sync relationships.
 - This is a pull monitor, no events are pushed from Cloud Sync to it.
 - The monitoring interval is freely configurable in minutes, hours, days or weeks. 
@@ -27,7 +27,7 @@ The Azure Logic App uses a refresh token provided through NetApp Cloud Central, 
 To generate a refresh token follow these steps:
 
 1. Go to https://services.cloud.netapp.com/refresh-token
-2. Sign in with the same user account and passwort used for accessing NetApp Cloud Sync.
+2. Sign in with the same user account and password used for accessing NetApp Cloud Sync.
 3. Generate a refresh token and copy or save it somewhere. This will be needed during the Logic App deployment
 
 Some remarks on the refresh token:
@@ -65,15 +65,15 @@ The following Cloud Sync Monitor specific parameters need to be specified and yo
 - Refresh Token
     - This is the refresh token generated in the [prerequisites section](#Cloud-Central-Refresh-Token)
 - Scheduled Frequency
-    - When do you want the Monitor to check for sync relationship status updates (i.e: Minute, Hour, Day, Month)
+    - When do you want the Monitor to check for sync relationship status updates (i.e.: Minute, Hour, Day, Month)
 - Scheduled Interval
     - How often should the Monitor be run in your previously specified frequency (i.e. every 5 minutes, every 5 hours ...)
 - Scheduled Start Time
-    - Usually there is no need to change this parameter unless you want the Montior to start running at some point in the future
+    - Usually there is no need to change this parameter unless you want the Monitor to start running at some point in the future
 
 ### Configuration
 After successfully deploying the Cloud Sync Monitor Logic App, the API connection for Office 365 needs to be connected to an Office 365 account.
-1. This has to be configured within the Office 365 API connection resource that was deployed to the specified ressource group during deployment:
+1. This has to be configured within the Office 365 API connection resource that was deployed to the specified resource group during deployment:
 ![Office 365 API Connection Resource](Screenshots/Office365-API-Connection.png)
 2. Select "Edit API connection".
 3. Choose an Office 365 account to be used for sending the notification mails.
@@ -84,7 +84,7 @@ After successfully deploying the Cloud Sync Monitor Logic App, the API connectio
 It might be necessary to change some settings after the Cloud Sync Monitor Logic App has already been deployed. The following settings can be configured after deployment:
 - Recurrence setting (interval / frequency)
 - Refresh token
-- The setting whether to only report errors or all successfull sync relationships
+- The setting whether to only report errors or all successful sync relationships
 - Mail subject
 - Notification mail recipient 
 
