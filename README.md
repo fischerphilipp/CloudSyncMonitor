@@ -12,7 +12,7 @@ This Cloud Sync monitor offers the following funcionality:
 - The Cloud Sync Monitor always sends one mail per successful or failed sync relationship for the configured interval setting.
 
 The notifications that are sent look like this:
-
+[![Example Mail](Screenshots/CloudSyncMonitor-ExampleMail.png)]
 
 #### The template deploys two components:
 - The Azure Logic App containing the monitoring logic
