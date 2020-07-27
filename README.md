@@ -79,13 +79,16 @@ After successfully deploying the Cloud Sync Monitor Logic App, the API connectio
 
 ### Change Settings after Deployment
 It might be necessary to change some settings after the Cloud Sync Monitor Logic App has already been deployed. The following settings can be configured after deployment:
-- Recurrence setting (Interval / Frequency)
-Refresh token
+- Recurrence setting (interval / frequency)
+- Refresh token
 - The setting whether to only report errors or all successfull sync relationships as well
 - Mail subject
 - Notification mail recipient 
 
-This can be done easily through the Azure Logic App Designer:
+This can be done easily by changing the corresponding variables through the Azure Logic App Designer:
 1. Select the Cloud Sync Monitor Azure Logic App in your resource group
 2. Open the Logic App Designer by clicking "Edit"
 ![Edit Cloud Sync Monitor Settings](Screenshots/Edit-Monitor-Settings.png)
+3. Change on of the following variables within the Logic App Designer
+![Change Logic App Variables](Screenshots/Monitor-Settings-Variables.png)
+4. Save and exit the Logic App Designer
