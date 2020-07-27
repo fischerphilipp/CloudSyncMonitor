@@ -2,14 +2,14 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "Cloud Sync Monitoring Logic App Name": {
-      "value": "Cloud-Sync-Monitoring"
+    "Cloud Sync Monitor Name": {
+      "value": "Cloud-Sync-Monitor"
     },
     "Office 365 Connection Name": {
-      "value": "Cloud-Sync-Monitoring-Office-365-Connection"
+      "value": "Cloud-Sync-Monitor-Office-365-Connection"
     },
     "Mail Subject": {
-      "value": "Cloud Sync Monitoring"
+      "value": "Cloud Sync Monitor"
     },
     "Notification Mail Recipient": {
       "value": ""
