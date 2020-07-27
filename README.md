@@ -26,7 +26,7 @@ Although most likely not needed, you can find a detailed description of every pa
 The Azure Logic App uses a refresh token provided through NetApp Cloud Central, which in turn is used to generate an access token for accessing the API services for Cloud Sync.
 To generate a refresh token follow these steps:
 
-1. Go to https://services.cloud.netapp.com/refresh-token
+1. Go to <a href="https://services.cloud.netapp.com/refresh-token" target="_blank">https://services.cloud.netapp.com/refresh-token</a>
 2. Sign in with the same user-account and passwort used for accessing NetApp Cloud Sync.
 3. Generate a refresh token and copy or save it somewhere. This will be needed during the Logic App deployment
 
