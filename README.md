@@ -39,7 +39,6 @@ All you need to do is to click the "Deploy to Azure" button below, which then ta
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ffischerphilipp%2FCloudSyncMonitor%2Fmaster%2Ftemplate.json)
 
-### Configuration
 After launching the template you are presented with an Azure custom deployment screen that asks for some configuration details:
 
 ![Deployment Configuration](Screenshots/DeploymentParameters.png)
@@ -55,7 +54,7 @@ The following parameters need to be specified and you can either accept the defa
 - Notification Mail Recipient
     - You can specify multiple addresses with a semicolon.
 - Only Report Errors (true/false)
-    - If set to true you will only be notified on failed sync relationships. If set this to false you will get a notification for every successful sync as well. You will always receive one mail per sync relationship.
+    - If set to true you will only be notified about failed sync relationships. If set to false you will get a notification for every successful sync as well. You will always receive one mail per sync relationship.
     - This parameter could be set to "false" for initial testing and afterwards changed to "true" (see instructions below).
 - Refresh Token
     - This is the refresh token generated before
@@ -66,5 +65,12 @@ The following parameters need to be specified and you can either accept the defa
 - Scheduled Start Time
     - Usually there is no need to change this parameter unless you want the Montior to start running at some point in the future
 
+### Configuration
+After successfull deployment the Office 365 connection needs to be connected to an Office 365 account.
+This has to configured in the Office 365 API connection resource that has been deployed to the specified ressource group during deployment:
+![Office 365 API Connection Resource](Screenshots/Office365-API-Connection.png)
 
-Hinweis auf: Wenn es aktuell keine Failed relationships gibt, dann zum Testen auf false stellen und anschließend ändern
+### Change Settings after Deployment
+It might be necessary to change some settings after the Cloud Sync Monitor Logic App has already been deployed. This might be the case for the initially specified mail recipient or the setting to only be notified on errors.
+
+This can be done easily through the Azure Logic App Designer
