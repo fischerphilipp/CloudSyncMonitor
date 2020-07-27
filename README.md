@@ -23,7 +23,7 @@ Although most likely not needed, you can find a detailed description of every pa
 
 ## Prerequisites
 ### Cloud Central Refresh Token
-The Azure Logic uses a refresh token provided through NetApp Cloud Central, which in turn is used to generate an access token for accessing the API Services for Cloud Sync.
+The Azure Logic App uses a refresh token provided through NetApp Cloud Central, which in turn is used to generate an access token for accessing the API Services for Cloud Sync.
 To generate a refresh token follow the below steps:
 
 - Go to https://services.cloud.netapp.com/refresh-token, generate a refresh token and copy or save it somewhere. This will be needed during the Logic App Deployment
@@ -38,7 +38,7 @@ If you don't have an Office 365 account, feel free to reach out in order to eval
 ## Deployment & Configuration
 ### Deployment
 
-All you need to do is to click the "Deploy to Azure" button below, which then takes you right to the Azure Portal to specify the necessary parameters for deployment (see below).
+All you need to do is to click the "Deploy to Azure" button below, which then takes you right to the Azure Portal to specify the necessary parameters for deployment.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ffischerphilipp%2FCloudSyncMonitor%2Fmaster%2Ftemplate.json)
 
@@ -51,18 +51,18 @@ The following parameters need to be specified and you can either accept the defa
 - Cloud Sync Monitor Name
     - This is the name for the Azure Logic App resource.
 - Office 365 Connection Name
-    - This is the Azure resource name for the Office 365 Connection that is being used for sending the notification mail. This has to be configured separately after deployment. (See detailed steps below)
+    - This is the Azure resource name for the Office 365 Connection that is being used for sending the notification mails. This has to be configured separately after deployment (see detailed steps [below](#Configuration)).
 - Mail Subject
     - The chosen mail subject is always appended by the job status, which is either "Failed" or "Done".
 - Notification Mail Recipient
-    - You can specify multiple addresses with a semicolon.
+    - You can specify multiple addresses by using the semicolon as delimiter.
 - Only Report Errors (true/false)
-    - If set to true you will only be notified about failed sync relationships. If set to false you will get a notification for every successful sync as well. You will always receive one mail per sync relationship.
-    - This parameter could be set to "false" for initial testing and afterwards changed to "true" (see instructions below).
+    - If set to *true* you will only be notified about failed sync relationships. If set to *false* you will get a notification for every successful sync as well. You will always receive one mail per sync relationship.
+    - This parameter could be set to *false* for initial testing and afterwards changed to *true* (see instructions [below](#Change-Settings-after-Deployment)).
 - Refresh Token
-    - This is the refresh token generated before
+    - This is the refresh token generated in the [prerequisites section](#Cloud-Central-Refresh-Token)
 - Scheduled Frequency
-    - When do you want the Monitor to check for sync relationship stattus updated i.e: Minute, Hour, Day, Month)
+    - When do you want the Monitor to check for sync relationship status updates i.e: Minute, Hour, Day, Month)
 - Scheduled Interval
     - How often should the Monitor be run in your previously specified frequency (i.e. every 5 minutes, every 5 hours ...)
 - Scheduled Start Time
