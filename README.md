@@ -2,10 +2,10 @@
 
 Created by Philipp Fischer (Cloud Solutions Architect for Azure NetApp Files at NetApp)
 
-This is a basic Azure Logic App to monitor NetApp Cloud Sync relationships and get notified via mail on either only on failures or on failures as well as successfull syncs.
+This is a basic Azure Logic App to monitor NetApp Cloud Sync relationships and get notified via mail either only on failures or on failures as well as successfull syncs.
 
 ## Introduction
-This Cloud Sync monitor offers the following funcionality:
+This Cloud Sync Monitor offers the following funcionality:
 - Send notification mails for failed (and optionally also successful) sync relationships.
 - This is a pull monitor, no events are pushed from Cloud Sync to it.
 - The monitoring interval is freely configurable in minutes, hours, days or weeks. 
@@ -23,11 +23,15 @@ Although most likely not needed, you can find a detailed description of every pa
 
 ## Prerequisites
 ### Cloud Central Refresh Token
-The Azure Logic App uses a refresh token provided through NetApp Cloud Central, which in turn is used to generate an access token for accessing the API Services for Cloud Sync.
-To generate a refresh token follow the below steps:
+The Azure Logic App uses a refresh token provided through NetApp Cloud Central, which in turn is used to generate an access token for accessing the API services for Cloud Sync.
+To generate a refresh token follow these steps:
 
-- Go to https://services.cloud.netapp.com/refresh-token, generate a refresh token and copy or save it somewhere. This will be needed during the Logic App Deployment
-- This token can be reused multiple times when re-deploying the Logic App or also when creating multiple Logic App instances.
+1. Go to https://services.cloud.netapp.com/refresh-token
+2. Sign in with the same user-account and passwort used for accessing NetApp Cloud Sync.
+3. Generate a refresh token and copy or save it somewhere. This will be needed during the Logic App deployment
+
+Some remarks on the refresh token:
+- This single token can be reused multiple times when re-deploying the Logic App or also when creating multiple Logic App instances.
 - If necessary you can also revoke the token and create a new one via the aforementioned link.
 
 ### Microsoft (Office) 365 Account
