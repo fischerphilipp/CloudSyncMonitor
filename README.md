@@ -66,9 +66,13 @@ The following parameters need to be specified and you can either accept the defa
     - Usually there is no need to change this parameter unless you want the Montior to start running at some point in the future
 
 ### Configuration
-After successfull deployment the Office 365 connection needs to be connected to an Office 365 account.
-This has to configured in the Office 365 API connection resource that has been deployed to the specified ressource group during deployment:
+After successfully deploying the Cloud Sync Monitor Logic App the API connection for Office 365 needs to be connected to an Office 365 account.
+1. This has to be configured in the Office 365 API connection resource that was deployed to the specified ressource group during deployment:
 ![Office 365 API Connection Resource](Screenshots/Office365-API-Connection.png)
+2. Select "Edit API connection"
+3. Click "Authorize"
+4. Choose an Office 365 account to be used for sending the notification mails
+![Authorize]
 
 ### Change Settings after Deployment
 It might be necessary to change some settings after the Cloud Sync Monitor Logic App has already been deployed. This might be the case for the initially specified mail recipient or the setting to only be notified on errors.
