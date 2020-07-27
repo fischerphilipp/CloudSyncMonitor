@@ -6,8 +6,13 @@ This is a basic Azure Logic App to monitor NetApp Cloud Sync relationships and g
 
 ## Introduction
 This Cloud Sync monitor offers the following funcionality:
-- Sends notificatiion mails for failed (and successful syncs if desired) with one mail per sync relationship
+- Sends notification mails for failed (and optionally also successful) sync relationships.
 - This is a pull monitor, no events are pushed from Cloud Sync to it.
+- The monitoring interval is freely configurable in minutes, hours, days or weeks. 
+- The Cloud Sync Monitor always sends one mail per successful or failed sync relationship for the configured interval setting.
+
+The notifications that are sent look like this:
+
 
 #### The template deploys two components:
 - The Azure Logic App containing the monitoring logic
