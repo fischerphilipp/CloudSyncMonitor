@@ -78,7 +78,7 @@ After successfully deploying the Cloud Sync Monitor Logic App, the API connectio
 2. Select "Edit API connection".
 3. Click "Authorize".
 ![Authorize](Screenshots/Authorize-Office365-Connection.png)
-4. Choose an Office 365 account to be used for sending the notification mails.
+4. Choose an Office 365 account to be used for sending the notification mails and save afterwards.
 
 ## Change Settings after Deployment
 It might be necessary to change some settings after the Cloud Sync Monitor Logic App has already been deployed. The following settings can be configured after deployment:
